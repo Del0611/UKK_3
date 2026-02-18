@@ -109,7 +109,7 @@
 
                 <div class="divider small text-uppercase fw-bold" style="font-size: 11px;">Atau</div>
 
-                <a href="/login" class="btn btn-outline-info">
+                <a href="/admin" class="btn btn-outline-info">
                     Masuk sebagai Admin
                 </a>
             </div>

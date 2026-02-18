@@ -82,74 +82,128 @@
         </div>
     </nav>
 
-    <main class="container" style="margin-top: 110px; padding-bottom: 50px;">
-        
-        <header class="py-4">
-            <h1 class="fw-black text-white display-6 mb-1">Dashboard</h1>
-            <p class="text-secondary fst-italic small">Selamat datang kembali di sistem kendali UKK 2026.</p>
-        </header>
+   <main class="container" style="margin-top: 110px; padding-bottom: 50px;">
+    
+    <header class="py-4">
+        <h1 class="fw-black text-white display-6 mb-1">Admin Control</h1>
+        <p class="text-secondary fst-italic small">Manajemen data aspirasi siswa UKK 2026.</p>
+    </header>
 
-        <div class="row g-4 mb-5">
-            <div class="col-12 col-md-4">
-                <div class="card-stat p-4 h-100">
-                    <p class="text-secondary fw-black text-uppercase mb-2" style="font-size: 10px; letter-spacing: 1.5px;">Total Siswa</p>
-                    <div class="display-6 fw-black text-white">1,240</div>
-                </div>
-            </div>
-            
-            <div class="col-12 col-md-4">
-                <div class="card-stat p-4 h-100 border-primary border-opacity-25">
-                    <p class="text-secondary fw-black text-uppercase mb-2" style="font-size: 10px; letter-spacing: 1.5px;">Data Riwayat</p>
-                    <div class="display-6 fw-black text-primary">458</div>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-4">
-                <div class="card-stat p-4 h-100">
-                    <p class="text-secondary fw-black text-uppercase mb-2" style="font-size: 10px; letter-spacing: 1.5px;">Status Sistem</p>
-                    <div class="h3 fw-black text-success text-uppercase m-0">Optimized</div>
-                </div>
+    <div class="row g-4 mb-5">
+        <div class="col-12 col-md-4">
+            <div class="card-stat p-4 h-100">
+                <p class="text-secondary fw-black text-uppercase mb-2" style="font-size: 10px; letter-spacing: 1.5px;">Total Siswa</p>
+                <div class="display-6 fw-black text-white">{{ $total_siswa }}</div>
             </div>
         </div>
-
-        <section class="table-container shadow-lg">
-            <div class="p-4 border-bottom border-secondary border-opacity-25 bg-secondary bg-opacity-10">
-                <h6 class="m-0 fw-black text-uppercase small text-white" style="letter-spacing: 1px;">Daftar Aktivitas Siswa</h6>
+        <div class="col-12 col-md-4">
+            <div class="card-stat p-4 h-100 border-primary border-opacity-25">
+                <p class="text-secondary fw-black text-uppercase mb-2" style="font-size: 10px; letter-spacing: 1.5px;">Total Aspirasi</p>
+                <div class="display-6 fw-black text-primary">{{ $total_aspirasi }}</div>
             </div>
-            
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-dark text-secondary">
-                        <tr style="font-size: 10px; letter-spacing: 1px;">
-                            <th class="px-4 py-3 border-0">NAMA LENGKAP</th>
-                            <th class="px-4 py-3 border-0">NISN</th>
-                            <th class="px-4 py-3 border-0">KELAS</th>
-                            <th class="px-4 py-3 border-0 text-center">STATUS</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-light border-top-0">
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <td class="px-4 py-4 fw-bold">Ahmad Fauzi</td>
-                            <td class="px-4 py-4 font-monospace text-secondary small">0082736412</td>
-                            <td class="px-4 py-4 text-secondary small fw-medium">XII RPL 1</td>
-                            <td class="px-4 py-4 text-center">
-                                <span class="status-badge">Aktif</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="px-4 py-4 fw-bold">Siti Aminah</td>
-                            <td class="px-4 py-4 font-monospace text-secondary small">0082736415</td>
-                            <td class="px-4 py-4 text-secondary small fw-medium">XII RPL 2</td>
-                            <td class="px-4 py-4 text-center">
-                                <span class="status-badge">Aktif</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card-stat p-4 h-100">
+                <p class="text-secondary fw-black text-uppercase mb-2" style="font-size: 10px; letter-spacing: 1.5px;">Status Server</p>
+                <div class="h3 fw-black text-success text-uppercase m-0">Online</div>
             </div>
-        </section>
+        </div>
+    </div>
 
-    </main>
+    @if(session('success'))
+        <div class="alert alert-success bg-success bg-opacity-10 border-success text-success mb-4">{{ session('success') }}</div>
+    @endif
+
+    <section class="table-container shadow-lg">
+        <div class="p-4 border-bottom border-secondary border-opacity-25 bg-secondary bg-opacity-10">
+            <h6 class="m-0 fw-black text-uppercase small text-white" style="letter-spacing: 1px;">Semua Data Aspirasi</h6>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-dark text-secondary">
+                    <tr style="font-size: 10px; letter-spacing: 1px;">
+                        <th class="px-4 py-3 border-0">NAMA SISWA</th>
+                        <th class="px-4 py-3 border-0">LOKASI</th>
+                        <th class="px-4 py-3 border-0">ASPIRASI</th>
+                        <th class="px-4 py-3 border-0 text-center">AKSI</th>
+                    </tr>
+                </thead>
+                <tbody class="text-light border-top-0">
+                    @foreach($aspirasi as $a)
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td class="px-4 py-4">
+                            <div class="fw-bold">{{ $a->nama_siswa }}</div>
+                            <div class="small text-secondary font-monospace">{{ $a->nis }}</div>
+                        </td>
+                        <td class="px-4 py-4 small">{{ $a->lokasi }}</td>
+                        <td class="px-4 py-4 small text-secondary">{{ Str::limit($a->ket, 50) }}</td>
+                        <td class="px-4 py-4 text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                                <button class="btn btn-primary btn-sm px-3" 
+                                    onclick="editAspirasi('{{ $a->id_pelaporan }}', '{{ $a->lokasi }}', '{{ $a->ket }}', '{{ $a->kategori }}')"
+                                    data-bs-toggle="modal" data-bs-target="#editModal">
+                                    Edit
+                                </button>
+                                <a href="/admin/aspirasi-hapus/{{ $a->id_pelaporan }}" 
+                                   class="btn btn-danger btn-sm px-3" 
+                                   onclick="return confirm('Yakin ingin menghapus data ini?')">
+                                    Hapus
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-secondary">
+            <form action="/admin/aspirasi-update" method="POST">
+                @csrf
+                <input type="hidden" name="id_pelaporan" id="edit_id">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-white">Edit Aspirasi</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small text-secondary">LOKASI</label>
+                        <input type="text" name="lokasi" id="edit_lokasi" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-secondary">KATEGORI</label>
+                        <select name="kategori" id="edit_kategori" class="form-select form-control">
+                            <option value="1">Fasilitas</option>
+                            <option value="2">Kebersihan</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-secondary">PESAN</label>
+                        <textarea name="pesan" id="edit_pesan" class="form-control" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function editAspirasi(id, lokasi, ket, kategori) {
+        document.getElementById('edit_id').value = id;
+        document.getElementById('edit_lokasi').value = lokasi;
+        document.getElementById('edit_pesan').value = ket;
+        document.getElementById('edit_kategori').value = kategori;
+    }
+</script>
 
 </body>
 </html>

@@ -5,39 +5,66 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Route;
 
-// Tampilan halaman login
-Route::get('/login', function () {
-    return view('/admin/login');
-})->name('login');
 
-// Proses pengecekan login
-Route::post('/login-proses', function (Request $request) {
-    // Gunakan pengecekan sederhana (pastikan tabel 'admin' sudah ada di DB)
-    $user = DB::table('admin')
+//Siswa
+
+Route::get('/admin', function () {
+    return view('/admin/login');
+});
+
+
+// Pastikan bagian login menyimpan NIS
+Route::post('/login-admin-proses', function (Request $request) {
+    $user_siswa = DB::table('admin')
         ->where('username', $request->username)
         ->where('password', $request->password)
         ->first();
-
-    if ($user) {
-        Session::put('admin_logged_in', $user->username);
+    
+    if ($user_siswa) {
+        Session::put('admin_logged_in', $user_siswa->password);
+        Session::put('admin_username', $user_siswa->username); // Simpan username untuk id pelaporan
         return redirect('/admin/dashboard');
     } else {
-        return redirect('/login')->with('error', 'Username atau Password salah!');
+        return redirect('/admin')->with('error', 'Username atau Password salah!');  
     }
 });
 
-// Halaman Dashboard (Memanggil View)
+// Halaman Dashboard Admin
 Route::get('/admin/dashboard', function () {
     if (!Session::has('admin_logged_in')) {
-        return redirect('/login')->with('error', 'Silahkan login terlebih dahulu');
+        return redirect('/admin');
     }
     
-    // Mengambil data dari session untuk dikirim ke view
-    $data = [
-        'username' => Session::get('admin_logged_in')
-    ];
+    $data = ['username' => Session::get('admin_logged_in')];
 
-    return view('/admin/dashboard', compact('data'));
+    // Mengambil SEMUA data aspirasi dan menggabungkan dengan nama siswa jika perlu
+    $aspirasi = DB::table('i_aspirasi')
+        ->join('siswa', 'i_aspirasi.nis', '=', 'siswa.nis')
+        ->select('i_aspirasi.*', 'siswa.nama as nama_siswa')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    // Statistik sederhana
+    $total_siswa = DB::table('siswa')->count();
+    $total_aspirasi = DB::table('i_aspirasi')->count();
+
+    return view('/admin/dashboard', compact('data', 'aspirasi', 'total_siswa', 'total_aspirasi'));
+});
+
+// Proses Hapus Aspirasi
+Route::get('/admin/aspirasi-hapus/{id}', function ($id) {
+    DB::table('i_aspirasi')->where('id_pelaporan', $id)->delete();
+    return redirect()->back()->with('success', 'Data aspirasi berhasil dihapus!');
+});
+
+// Proses Update/Edit Aspirasi
+Route::post('/admin/aspirasi-update', function (Illuminate\Http\Request $request) {
+    DB::table('i_aspirasi')->where('id_pelaporan', $request->id_pelaporan)->update([
+        'lokasi' => $request->lokasi,
+        'ket' => $request->pesan,
+        'id_kategori' => $request->kategori
+    ]);
+    return redirect()->back()->with('success', 'Data aspirasi berhasil diperbarui!');
 });
 
 // Proses Logout

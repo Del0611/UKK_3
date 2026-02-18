@@ -88,7 +88,7 @@
             </div>
         @endif
 
-        <form action="/login-proses" method="POST">
+        <form action="/login-admin-proses" method="POST">
             @csrf
             
             <div class="mb-3">
