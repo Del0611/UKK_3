@@ -87,6 +87,60 @@ Route::get('/admin/aspirasi-hapus/{id}', function ($id) {
     return redirect()->back()->with('success', 'Data berhasil dihapus!');
 });
 
+Route::get('/admin/management-akun', function () {
+    // Ambil data siswa
+    $siswa = DB::table('siswa')->get();
+
+    // Pastikan mengirim data session username agar navbar tidak error
+    // Sesuaikan dengan cara kamu menyimpan session login
+    $data = [
+        'username' => session('username', 'Admin') 
+    ];
+
+    return view('admin.management', compact('siswa', 'data'));
+});
+
+//penyimpanan data siswa baru
+
+Route::post('/admin/siswa-simpan', function (Request $request) {
+    // 1. Validasi input agar data tidak kosong atau duplikat
+    $request->validate([
+        'nis'   => 'required|unique:siswa,nis',
+        'nama'  => 'required',
+        'kelas' => 'required',
+    ]);
+
+    // 2. Proses Simpan ke Database
+    DB::table('siswa')->insert([
+        'nis'   => $request->nis,
+        'nama'  => $request->nama,
+        'kelas' => $request->kelas,
+    ]);
+
+    // 3. Kembalikan ke halaman sebelumnya dengan pesan sukses
+    return redirect()->back()->with('success', 'Data siswa berhasil ditambahkan!');
+});
+
+Route::get('/admin/siswa-hapus/{nis}', function ($nis) {
+    
+    // Proses hapus data berdasarkan NIS
+    DB::table('siswa')->where('nis', $nis)->delete();
+
+    // Kembali ke halaman sebelumnya dengan pesan sukses
+    return redirect()->back()->with('success', 'Data siswa dengan NIS ' . $nis . ' berhasil dihapus!');
+});
+
+// Route untuk menghapus aspirasi berdasarkan ID
+Route::get('/admin/hapus/{id}', function ($id) {
+    
+    // Melakukan penghapusan pada tabel pelaporan
+    // Pastikan nama kolom primary key Anda adalah id_pelaporan
+    DB::table('i_aspirasi')->where('id_pelaporan', $id)->delete();
+
+    // Mengembalikan ke halaman dashboard dengan pesan sukses
+    return redirect()->back()->with('success', 'Aspirasi berhasil dihapus secara permanen.');
+});
+
 // Proses Logout
 Route::get('/logout', function () {
     Session::forget('admin_logged_in');
@@ -120,19 +174,25 @@ Route::post('/login-siswa-proses', function (Request $request) {
 
 // Proses Simpan Aspirasi
 Route::post('/aspirasi-simpan', function (Request $request) {
-    if (!Session::has('siswa_logged_in')) {
-        return redirect('/siswa')->with('error', 'Silahkan login kembali');
-    }
-
-    DB::table('i_aspirasi')->insert([
-        'id_kategori' => $request->kategori, // Akan menerima angka dari <option value="...">
-        'lokasi'      => 'Sekolah',          // Kamu bisa tambah input lokasi jika perlu
-        'nis'         => Session::get('siswa_nis'),
-        'ket'         => $request->pesan,
-        'created_at'  => now()
+    // 1. Validasi
+    $request->validate([
+        'kategori' => 'required',
+        'lokasi'   => 'required',
+        'pesan'    => 'required',
     ]);
 
-    return redirect()->back()->with('success', 'Aspirasi berhasil dikirim!');
+    // 2. Simpan ke database
+    DB::table('i_aspirasi')->insert([
+        // PERBAIKAN: Ganti 'nis' menjadi 'siswa_nis' agar sesuai dengan Session Login
+        'nis'         => Session::get('siswa_nis'), 
+        'id_kategori' => $request->kategori,
+        'lokasi'      => $request->lokasi,
+        'ket'         => $request->pesan,
+        'status'      => 'pending',
+        'created_at'  => now(),
+    ]);
+
+    return redirect()->back()->with('success', 'Aspirasi berhasil terkirim dan menunggu moderasi.');
 });
 
 // Update Dashboard agar Riwayat Dinamis
