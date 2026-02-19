@@ -93,13 +93,13 @@
             @csrf
             
             <div class="mb-3">
-                <label class="form-label small fw-bold text-secondary text-uppercase tracking-wider">NISN / Username</label>
+                <label class="form-label small fw-bold text-secondary text-uppercase tracking-wider">Nomor Induk Siswa</label>
                 <input type="text" name="username" class="form-control text-white" placeholder="Masukkan Nis" required autocomplete="off">
             </div>
 
             <div class="mb-4">
-                <label class="form-label small fw-bold text-secondary text-uppercase tracking-wider">Password</label>
-                <input type="password" name="password" class="form-control text-white" placeholder="••••••••" required>
+                <label class="form-label small fw-bold text-secondary text-uppercase tracking-wider">Nama</label>
+                <input type="text" name="password" class="form-control text-white" placeholder="Nama Siswa" required>
             </div>
 
             <div class="d-grid gap-2">
