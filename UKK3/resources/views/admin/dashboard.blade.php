@@ -8,6 +8,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
         body {
@@ -54,6 +55,20 @@
             display: flex; align-items: center; justify-content: center;
             font-weight: bold; color: white;
             box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
+        }
+
+        /* Custom Style untuk Tombol Icon */
+        .btn-action {
+            width: 35px;
+            height: 35px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .btn-action i {
+            font-size: 1.1rem;
         }
     </style>
 </head>
@@ -151,15 +166,21 @@
                                 @endif
                             </td>
                             <td class="px-4 py-4 text-center">
-                                <button class="btn btn-primary btn-sm px-3" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#editModal" 
-                                        onclick="openEditModal({{ json_encode($a) }})">
-                                    Edit
-                                </button>
-                                <a href="/admin/aspirasi-hapus/{{ $a->id_pelaporan }}" class="btn btn-danger btn-sm px-3" onclick="return confirm('Hapus data?')">
-                                    Hapus
-                                </a>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <button class="btn btn-outline-primary btn-action" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editModal" 
+                                            onclick="openEditModal({{ json_encode($a) }})"
+                                            title="Edit Data">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <a href="/admin/aspirasi-hapus/{{ $a->id_pelaporan }}" 
+                                       class="btn btn-outline-danger btn-action" 
+                                       onclick="return confirm('Hapus data?')"
+                                       title="Hapus Data">
+                                        <i class="bi bi-trash3"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         @endforeach
@@ -222,7 +243,6 @@
 
     <script>
         function openEditModal(data) {
-            // Mengisi input form modal dengan data yang dipilih
             document.getElementById('edit_id').value = data.id_pelaporan;
             document.getElementById('edit_kategori').value = data.id_kategori;
             document.getElementById('edit_lokasi').value = data.lokasi;
