@@ -54,7 +54,12 @@
             font-weight: bold; color: #0b1120;
             box-shadow: 0 10px 15px -3px rgba(13, 202, 240, 0.2);
         }
-    </style>
+
+        .badge-pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
+        .badge-proses { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2); }
+        .badge-success { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+   
+   </style>
 </head>
 <body class="antialiased">
 
@@ -150,8 +155,14 @@
                             <td class="px-4 py-4 small fw-bold text-info text-uppercase">{{ $r->lokasi }}</td>
                             <td class="px-4 py-4 small text-secondary">{{ Str::limit($r->ket, 30) }}</td>
                             <td class="px-4 py-4">
-                                <span class="status-badge badge-pending">Terkirim</span>
-                            </td>
+                            @if($r->status == 'selesai')
+                                <span class="status-badge badge-success">Selesai</span>
+                            @elseif($r->status == 'proses')
+                                <span class="status-badge badge-proses">Proses</span>
+                            @else
+                                <span class="status-badge badge-pending">Pending</span>
+                            @endif
+                        </td>
                         </tr>
                         @empty
                         <tr>

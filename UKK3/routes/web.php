@@ -15,62 +15,82 @@ Route::get('/admin', function () {
 
 // Pastikan bagian login menyimpan NIS
 Route::post('/login-admin-proses', function (Request $request) {
-    $user_siswa = DB::table('admin')
+    $user_admin = DB::table('admin')
         ->where('username', $request->username)
         ->where('password', $request->password)
         ->first();
     
-    if ($user_siswa) {
-        Session::put('admin_logged_in', $user_siswa->password);
-        Session::put('admin_username', $user_siswa->username); // Simpan username untuk id pelaporan
+    if ($user_admin) {
+        Session::put('admin_logged_in', $user_admin->password);
+        Session::put('admin_username', $user_admin->username);
         return redirect('/admin/dashboard');
     } else {
         return redirect('/admin')->with('error', 'Username atau Password salah!');  
     }
 });
 
-// Halaman Dashboard Admin
-Route::get('/admin/dashboard', function () {
-    if (!Session::has('admin_logged_in')) {
-        return redirect('/admin');
-    }
-    
-    $data = ['username' => Session::get('admin_logged_in')];
 
-    // Mengambil SEMUA data aspirasi dan menggabungkan dengan nama siswa jika perlu
-    $aspirasi = DB::table('i_aspirasi')
+Route::get('/admin/dashboard', function () {
+    // 1. Ambil data aspirasi dengan JOIN
+    // Berdasarkan image_d80117.png, kolom kategori di i_aspirasi adalah VARCHAR
+    // Kita asumsikan di tabel kategori, kolom penghubungnya juga bernama 'kategori'
+$aspirasi = DB::table('i_aspirasi')
         ->join('siswa', 'i_aspirasi.nis', '=', 'siswa.nis')
-        ->select('i_aspirasi.*', 'siswa.nama as nama_siswa')
-        ->orderBy('created_at', 'desc')
+        // Sesuaikan: i_aspirasi.kategori dihubungkan ke kategori.id_kategori
+        ->join('kategori', 'i_aspirasi.id_kategori', '=', 'kategori.id_kategori') 
+        ->select(
+            'i_aspirasi.*', 
+            'siswa.nama', 
+            'kategori.ket_kategori' // Kolom dari tabel kategori untuk ditampilkan
+        )
         ->get();
 
-    // Statistik sederhana
+    // 2. Ambil semua kategori untuk modal edit
+    $kategori = DB::table('kategori')->get();
+
+    // 3. Hitung statistik
     $total_siswa = DB::table('siswa')->count();
     $total_aspirasi = DB::table('i_aspirasi')->count();
 
-    return view('/admin/dashboard', compact('data', 'aspirasi', 'total_siswa', 'total_aspirasi'));
+    // 4. Data session
+    $data = [
+        'username' => session('username', 'Admin')
+    ];
+
+    return view('admin.dashboard', compact(
+        'aspirasi', 
+        'kategori', 
+        'total_siswa', 
+        'total_aspirasi', 
+        'data'
+    ));
 });
 
-// Proses Hapus Aspirasi
+
+// Route untuk Update Aspirasi
+Route::post('/admin/aspirasi-update', function (Request $request) {
+    DB::table('i_aspirasi')
+        ->where('id_pelaporan', $request->id_pelaporan)
+        ->update([
+            'id_kategori' => $request->id_kategori,
+            'lokasi'      => $request->lokasi,
+            'ket'         => $request->pesan,
+            'status'      => $request->status,
+        ]);
+
+    return redirect()->back()->with('success', 'Aspirasi berhasil diperbarui!');
+});
+
+// Route untuk Hapus Aspirasi
 Route::get('/admin/aspirasi-hapus/{id}', function ($id) {
     DB::table('i_aspirasi')->where('id_pelaporan', $id)->delete();
-    return redirect()->back()->with('success', 'Data aspirasi berhasil dihapus!');
-});
-
-// Proses Update/Edit Aspirasi
-Route::post('/admin/aspirasi-update', function (Illuminate\Http\Request $request) {
-    DB::table('i_aspirasi')->where('id_pelaporan', $request->id_pelaporan)->update([
-        'lokasi' => $request->lokasi,
-        'ket' => $request->pesan,
-        'id_kategori' => $request->kategori
-    ]);
-    return redirect()->back()->with('success', 'Data aspirasi berhasil diperbarui!');
+    return redirect()->back()->with('success', 'Data berhasil dihapus!');
 });
 
 // Proses Logout
 Route::get('/logout', function () {
     Session::forget('admin_logged_in');
-    return redirect('/login');
+    return redirect('/admin/login');
 });
 
 
@@ -105,7 +125,7 @@ Route::post('/aspirasi-simpan', function (Request $request) {
     }
 
     DB::table('i_aspirasi')->insert([
-        'kategori' => $request->kategori, // Akan menerima angka dari <option value="...">
+        'id_kategori' => $request->kategori, // Akan menerima angka dari <option value="...">
         'lokasi'      => 'Sekolah',          // Kamu bisa tambah input lokasi jika perlu
         'nis'         => Session::get('siswa_nis'),
         'ket'         => $request->pesan,
