@@ -7,69 +7,39 @@
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.0/css/dataTables.bootstrap5.css">
+    <script src="https://cdn.datatables.net/2.0.0/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.0.0/js/dataTables.bootstrap5.js"></script>
+
     <style>
-        body {
-            background-color: #0b1120;
-            font-family: 'Inter', sans-serif;
+        body { background-color: #0b1120; font-family: 'Inter', sans-serif; }
+        .navbar { background-color: #0f172a !important; border-bottom: 1px solid #1e293b; height: 80px; }
+        .card-stat { background-color: #0f172a; border: 1px solid #1e293b; border-radius: 1.25rem; transition: all 0.3s ease; }
+        .card-stat:hover { transform: translateY(-5px); border-color: #3b82f6; }
+        .table-container { background-color: #0f172a; border: 1px solid #1e293b; border-radius: 1.25rem; overflow: hidden; padding: 20px; }
+        
+        /* DataTables Dark Customization */
+        .dataTables_wrapper .dataTables_length select, 
+        .dataTables_wrapper .dataTables_filter input {
+            background-color: #1e293b !important;
+            border: 1px solid #334155 !important;
+            color: white !important;
+            border-radius: 8px;
+            padding: 5px 10px;
         }
-        .navbar {
-            background-color: #0f172a !important;
-            border-bottom: 1px solid #1e293b;
-            height: 80px;
-        }
-        .card-stat {
-            background-color: #0f172a;
-            border: 1px solid #1e293b;
-            border-radius: 1.25rem;
-            transition: all 0.3s ease;
-        }
-        .card-stat:hover {
-            transform: translateY(-5px);
-            border-color: #3b82f6;
-        }
-        .table-container {
-            background-color: #0f172a;
-            border: 1px solid #1e293b;
-            border-radius: 1.25rem;
-            overflow: hidden;
-        }
-        .status-badge {
-            font-size: 9px;
-            font-weight: 900;
-            padding: 4px 10px;
-            border-radius: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        .dataTables_info, .dataTables_paginate { font-size: 12px; margin-top: 15px; }
+        
+        .status-badge { font-size: 9px; font-weight: 900; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
         .badge-selesai { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
         .badge-proses { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2); }
         .badge-pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
 
-        .nav-logo-box {
-            width: 40px; height: 40px;
-            background-color: #2563eb;
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; color: white;
-            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
-        }
-
-        /* Custom Style untuk Tombol Icon */
-        .btn-action {
-            width: 35px;
-            height: 35px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            transition: all 0.2s;
-        }
-        .btn-action i {
-            font-size: 1.1rem;
-        }
+        .nav-logo-box { width: 40px; height: 40px; background-color: #2563eb; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2); }
+        .btn-action { width: 35px; height: 35px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; transition: all 0.2s; }
     </style>
 </head>
 <body class="antialiased">
@@ -82,21 +52,17 @@
                     Admin<span class="text-primary">Panel</span>
                 </a>
             </div>
-
             <div class="d-flex align-items-center gap-4">
                 <div class="d-none d-md-flex flex-column align-items-end">
                     <span class="text-primary fw-black text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Administrator</span>
                     <span class="fw-bold text-light small">{{ $data['username'] }}</span>
                 </div>
-                <a href="/admin" class="btn btn-danger btn-sm fw-black text-uppercase px-4 py-2 rounded-3 shadow-sm" style="font-size: 11px; letter-spacing: 1px;">
-                    Logout
-                </a>
+                <a href="/admin" class="btn btn-danger btn-sm fw-black text-uppercase px-4 py-2 rounded-3 shadow-sm" style="font-size: 11px; letter-spacing: 1px;">Logout</a>
             </div>
         </div>
     </nav>
 
     <main class="container" style="margin-top: 110px; padding-bottom: 50px;">
-        
         <header class="py-4">
             <h1 class="fw-black text-white display-6 mb-1">Admin Control</h1>
             <p class="text-secondary fst-italic small">Manajemen data aspirasi siswa UKK 2026.</p>
@@ -128,20 +94,21 @@
         @endif
 
         <section class="table-container shadow-lg">
-            <div class="p-4 border-bottom border-secondary border-opacity-25 bg-secondary bg-opacity-10">
+            <div class="mb-4">
                 <h6 class="m-0 fw-black text-uppercase small text-white">Manajemen Aspirasi</h6>
             </div>
             
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table id="mainTable" class="table table-hover align-middle mb-0">
                     <thead class="bg-dark text-secondary">
                         <tr style="font-size: 10px; letter-spacing: 1px;">
-                            <th class="px-4 py-3">SISWA</th>
-                            <th class="px-4 py-3">KATEGORI</th>
-                            <th class="px-4 py-3">LOKASI</th>
-                            <th class="px-4 py-3">ASPIRASI</th>
-                            <th class="px-4 py-3 text-center">STATUS</th>
-                            <th class="px-4 py-3 text-center">AKSI</th>
+                            <th>SISWA</th>
+                            <th>TANGGAL</th>
+                            <th>KATEGORI</th>
+                            <th>LOKASI</th>
+                            <th>ASPIRASI</th>
+                            <th class="text-center">STATUS</th>
+                            <th class="text-center">AKSI</th>
                         </tr>
                     </thead>
                     <tbody class="text-light">
@@ -151,33 +118,23 @@
                                 <div class="fw-bold">{{ $a->nama }}</div>
                                 <div class="small text-secondary">{{ $a->nis }}</div>
                             </td>
+                            <td class="px-4 py-4 small text-white-50">
+                                {{ date('d M Y', strtotime($a->created_at)) }}
+                            </td>
                             <td class="px-4 py-4">
                                 <span class="badge bg-secondary opacity-50 small">{{ $a->ket_kategori }}</span>
                             </td>
                             <td class="px-4 py-4 small">{{ $a->lokasi }}</td>
                             <td class="px-4 py-4 small text-secondary">{{ Str::limit($a->ket, 50) }}</td>
                             <td class="px-4 py-4 text-center">
-                                @if($a->status == 'selesai')
-                                    <span class="status-badge badge-selesai">Selesai</span>
-                                @elseif($a->status == 'proses')
-                                    <span class="status-badge badge-proses">Proses</span>
-                                @else
-                                    <span class="status-badge badge-pending">Pending</span>
-                                @endif
+                                <span class="status-badge badge-{{ $a->status }}">{{ $a->status }}</span>
                             </td>
                             <td class="px-4 py-4 text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <button class="btn btn-outline-primary btn-action" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#editModal" 
-                                            onclick="openEditModal({{ json_encode($a) }})"
-                                            title="Edit Data">
+                                    <button class="btn btn-outline-primary btn-action" data-bs-toggle="modal" data-bs-target="#editModal" onclick="openEditModal({{ json_encode($a) }})" title="Edit">
                                         <i class="bi bi-pencil-square"></i>
                                     </button>
-                                    <a href="/admin/aspirasi-hapus/{{ $a->id_pelaporan }}" 
-                                       class="btn btn-outline-danger btn-action" 
-                                       onclick="return confirm('Hapus data?')"
-                                       title="Hapus Data">
+                                    <a href="/admin/aspirasi-hapus/{{ $a->id_pelaporan }}" class="btn btn-outline-danger btn-action" onclick="return confirm('Hapus data?')" title="Hapus">
                                         <i class="bi bi-trash3"></i>
                                     </a>
                                 </div>
@@ -196,12 +153,10 @@
                 <form action="/admin/aspirasi-update" method="POST">
                     @csrf
                     <input type="hidden" name="id_pelaporan" id="edit_id">
-                    
                     <div class="modal-header border-secondary">
                         <h5 class="modal-title fw-bold">Update Aspirasi</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
-
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label small text-secondary fw-bold text-uppercase">Kategori</label>
@@ -211,12 +166,10 @@
                                 @endforeach
                             </select>
                         </div>
-
                         <div class="mb-3">
                             <label class="form-label small text-secondary fw-bold text-uppercase">Lokasi</label>
                             <input type="text" name="lokasi" id="edit_lokasi" class="form-control bg-dark text-white border-secondary">
                         </div>
-
                         <div class="mb-3">
                             <label class="form-label small text-secondary fw-bold text-uppercase">Status Proses</label>
                             <select name="status" id="edit_status" class="form-select bg-dark text-white border-secondary">
@@ -225,13 +178,11 @@
                                 <option value="selesai">Selesai</option>
                             </select>
                         </div>
-
                         <div class="mb-3">
                             <label class="form-label small text-secondary fw-bold text-uppercase">Pesan Aspirasi</label>
                             <textarea name="pesan" id="edit_pesan" class="form-control bg-dark text-white border-secondary" rows="4"></textarea>
                         </div>
                     </div>
-
                     <div class="modal-footer border-secondary">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-primary px-4">Simpan Perubahan</button>
@@ -242,6 +193,19 @@
     </div>
 
     <script>
+        $(document).ready(function() {
+            $('#mainTable').DataTable({
+                "language": {
+                    "search": "Cari:",
+                    "lengthMenu": "Tampilkan _MENU_ data",
+                    "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                    "paginate": { "next": "Next", "previous": "Prev" }
+                },
+                "columnDefs": [ { "orderable": false, "targets": 6 } ], // Kolom Aksi tidak bisa disortir
+                "order": [[ 1, "desc" ]] // Sortir otomatis tanggal terbaru
+            });
+        });
+
         function openEditModal(data) {
             document.getElementById('edit_id').value = data.id_pelaporan;
             document.getElementById('edit_kategori').value = data.id_kategori;
@@ -250,6 +214,5 @@
             document.getElementById('edit_status').value = data.status || 'pending';
         }
     </script>
-
 </body>
 </html>
