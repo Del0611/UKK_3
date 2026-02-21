@@ -183,7 +183,6 @@ Route::post('/aspirasi-simpan', function (Request $request) {
 
     // 2. Simpan ke database
     DB::table('i_aspirasi')->insert([
-        // PERBAIKAN: Ganti 'nis' menjadi 'siswa_nis' agar sesuai dengan Session Login
         'nis'         => Session::get('siswa_nis'), 
         'id_kategori' => $request->kategori,
         'lokasi'      => $request->lokasi,
@@ -196,22 +195,44 @@ Route::post('/aspirasi-simpan', function (Request $request) {
 });
 
 // Update Dashboard agar Riwayat Dinamis
+// Sesuaikan URL-nya agar sama dengan yang ada di redirect login (/siswa/dashboard)
 Route::get('/siswa/dashboard', function () {
-    if (!Session::has('siswa_logged_in')) {
-        return redirect('/siswa');
-    }
-    
-    $data = [
-        'username' => Session::get('siswa_logged_in')
-    ];
+    // 1. Ambil data kategori
+    $kategori = DB::table('kategori')->get();
 
-    // Ambil riwayat asli dari database berdasarkan NIS siswa yang login
+    // 2. Ambil riwayat dari tabel i_aspirasi (Bukan 'pelaporan')
+    // Gunakan 'siswa_nis' sesuai yang disimpan saat login
     $riwayat = DB::table('i_aspirasi')
-                ->where('nis', Session::get('siswa_nis'))
+                ->where('nis', Session::get('siswa_nis')) 
                 ->orderBy('created_at', 'desc')
                 ->get();
 
-    return view('/siswa/dashboard', compact('data', 'riwayat'));
+    // 3. Ambil nama untuk sapaan di Navbar
+    $data = [
+        'username' => Session::get('siswa_logged_in') // Mengambil nama yang disimpan saat login
+    ];
+
+    // Pastikan path view-nya benar (folder siswa, file dashboard.blade.php)
+    return view('siswa.dashboard', compact('kategori', 'riwayat', 'data'));
+});
+
+Route::post('/aspirasi-update', function (Request $request) {
+    DB::table('i_aspirasi')
+        ->where('id_pelaporan', $request->id_pelaporan)
+        ->update([
+            'id_kategori' => $request->id_kategori,
+            'lokasi'      => $request->lokasi,
+            'ket'         => $request->pesan,
+            'updated_at'  => now(), // Baris ini wajib ada
+        ]);
+
+    return redirect()->back()->with('success', 'Aspirasi berhasil diperbarui!');
+});
+
+// Route untuk Hapus Aspirasi
+Route::get('/aspirasi-hapus/{id}', function ($id) {
+    DB::table('i_aspirasi')->where('id_pelaporan', $id)->delete();
+    return redirect()->back()->with('success', 'Aspirasi berhasil dihapus!');
 });
 
 // Proses Logout

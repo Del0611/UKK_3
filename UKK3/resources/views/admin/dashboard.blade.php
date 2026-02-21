@@ -80,6 +80,10 @@
             color: white !important;
             border-radius: 8px;
             padding: 6px 12px;
+
+        #mainTable td {
+            vertical-align: top; /* Agar teks mulai dari atas sel */
+        }
         }
     </style>
 </head>
@@ -171,7 +175,19 @@
                                 <div class="fw-bold">{{ $a->nama }}</div>
                                 <div class="small text-secondary">{{ $a->nis }}</div>
                             </td>
-                            <td class="small text-white-50">{{ date('d M Y', strtotime($a->created_at)) }}</td>
+                            <td class="small">
+    <div class="text-white">
+        <i class="bi bi-calendar-check me-1 opacity-50"></i>
+        {{ date('d M Y', strtotime($a->created_at)) }}
+    </div>
+    
+    @if($a->updated_at && $a->updated_at != $a->created_at)
+        <div class="text-info mt-1" style="font-size: 10px; opacity: 0.8;">
+            <i class="bi bi-clock-history me-1"></i>
+            Updated: {{ date('d M Y H:i', strtotime($a->updated_at)) }}
+        </div>
+    @endif
+</td>
                             <td><span class="badge bg-secondary opacity-50">{{ $a->ket_kategori }}</span></td>
                             <td class="small">{{ $a->lokasi }}</td>
                             <td class="small text-secondary">{{ Str::limit($a->ket, 40) }}</td>
