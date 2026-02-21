@@ -54,7 +54,7 @@ $aspirasi = DB::table('i_aspirasi')
 
     // 4. Data session
     $data = [
-        'username' => session('username', 'Admin')
+        'username' => session('admin_username')
     ];
 
     return view('admin.dashboard', compact(
@@ -94,7 +94,7 @@ Route::get('/admin/management-akun', function () {
     // Pastikan mengirim data session username agar navbar tidak error
     // Sesuaikan dengan cara kamu menyimpan session login
     $data = [
-        'username' => session('username', 'Admin') 
+        'username' => session('admin_username') 
     ];
 
     return view('admin.management', compact('siswa', 'data'));
@@ -139,6 +139,29 @@ Route::get('/admin/hapus/{id}', function ($id) {
 
     // Mengembalikan ke halaman dashboard dengan pesan sukses
     return redirect()->back()->with('success', 'Aspirasi berhasil dihapus secara permanen.');
+});
+
+//untuk management akun siswa
+// Route untuk Update Data Siswa
+Route::post('/admin/siswa-update', function (Request $request) {
+    // 1. Validasi (Opsional: memastikan NIS baru tidak duplikat dengan orang lain)
+    $request->validate([
+        'nis'   => 'required',
+        'nama'  => 'required',
+        'kelas' => 'required',
+    ]);
+
+    // 2. Proses Update menggunakan nis_lama sebagai kunci (Primary Key)
+    DB::table('siswa')
+        ->where('nis', $request->nis_lama)
+        ->update([
+            'nis'   => $request->nis,
+            'nama'  => $request->nama,
+            'kelas' => $request->kelas,
+        ]);
+
+    // 3. Kembali dengan pesan sukses
+    return redirect()->back()->with('success', 'Data siswa ' . $request->nama . ' berhasil diperbarui!');
 });
 
 // Proses Logout
