@@ -13,7 +13,7 @@
 
     <style>
         body { background-color: #0b1120; font-family: 'Inter', sans-serif; }
-        .navbar { background-color: #0f172a !important; border-bottom: 1px solid #1e293b; height: 80px; z-index: 1050; }
+        .navbar { background-color: #0f172a !important; border-bottom: 1px solid #1e293b; min-height: 80px; z-index: 1050; }
         .nav-link-custom { color: #94a3b8; font-size: 14px; font-weight: 600; padding: 8px 16px !important; border-radius: 8px; transition: 0.2s; text-decoration: none; display: flex; align-items: center; gap: 8px; }
         .nav-link-custom:hover { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
         .nav-link-custom.active { color: #fff !important; background: #2563eb; }
@@ -26,9 +26,12 @@
         .badge-proses { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2); }
         .badge-pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
 
-        .clickable-aspirasi { cursor: pointer; padding: 5px; border-radius: 5px; transition: 0.2s; }
+        .clickable-aspirasi { cursor: pointer; padding: 8px; border-radius: 8px; transition: 0.2s; display: block; }
         .clickable-aspirasi:hover { background: rgba(255,255,255,0.05); color: #3b82f6 !important; }
         .btn-action { width: 35px; height: 35px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; }
+        
+        /* Fix for scroll behavior */
+        body.modal-open { overflow: hidden; padding-right: 0 !important; }
     </style>
 </head>
 <body>
@@ -37,20 +40,34 @@
         <div class="container">
             <div class="d-flex align-items-center gap-3">
                 <div class="bg-primary text-white p-2 rounded-3 fw-bold" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">A</div>
-                <a class="navbar-brand fw-bold text-uppercase m-0 d-none d-sm-block" href="#">Admin<span class="text-primary">Panel</span></a>
+                <a class="navbar-brand fw-bold text-uppercase m-0 d-none d-sm-block" href="javascript:void(0)">Admin<span class="text-primary">Panel</span></a>
             </div>
-            <div class="collapse navbar-collapse justify-content-center" id="navContent">
-                <ul class="navbar-nav gap-2">
-                    <li class="nav-item"><a class="nav-link nav-link-custom active" href="/admin/dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link nav-link-custom" href="/admin/management-akun"><i class="bi bi-people-fill"></i> Management Akun</a></li>
+
+            <button class="navbar-toggler border-0 text-white p-0 order-3" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <i class="bi bi-list fs-1"></i>
+            </button>
+
+            <div class="collapse navbar-collapse justify-content-center order-4 order-lg-2" id="navContent">
+                <ul class="navbar-nav gap-2 py-3 py-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom active" href="/admin/dashboard">
+                            <i class="bi bi-grid-1x2-fill"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/admin/management-akun">
+                            <i class="bi bi-people-fill"></i> Management Akun
+                        </a>
+                    </li>
                 </ul>
             </div>
-            <div class="ms-auto d-flex align-items-center gap-3">
+
+            <div class="ms-auto d-flex align-items-center gap-3 order-2 order-lg-3 me-3 me-lg-0">
                 <div class="text-end d-none d-md-block">
                     <span class="text-primary fw-bold text-uppercase d-block" style="font-size: 10px;">Administrator</span>
                     <span class="fw-bold text-light small">{{ $data['username'] }}</span>
                 </div>
-                <a href="/admin" class="btn btn-danger btn-sm px-4 fw-bold">Logout</a>
+                <a href="/admin" class="btn btn-danger btn-sm px-4 fw-bold rounded-3">Logout</a>
             </div>
         </div>
     </nav>
@@ -85,7 +102,7 @@
                             <th>Siswa</th>
                             <th>Tanggal & Update</th>
                             <th>Kategori</th>
-                            <th>Aspirasi</th>
+                            <th>Aspirasi (Klik Detail)</th>
                             <th class="text-center">Status</th>
                             <th class="text-center">Aksi</th>
                         </tr>
@@ -105,7 +122,11 @@
                             </td>
                             <td><span class="badge bg-secondary opacity-50">{{ $a->ket_kategori }}</span></td>
                             <td>
-                                <div class="clickable-aspirasi small text-secondary" onclick="btnShowDetail(this)" data-pesan="{{ $a->ket }}" data-nama="{{ $a->nama }}" data-lokasi="{{ $a->lokasi }}">
+                                <div class="clickable-aspirasi small text-secondary" 
+                                     onclick="btnShowDetail(this)" 
+                                     data-pesan="{{ $a->ket }}" 
+                                     data-nama="{{ $a->nama }}" 
+                                     data-lokasi="{{ $a->lokasi }}">
                                     <strong class="text-info d-block">{{ $a->lokasi }}</strong>
                                     {{ Str::limit($a->ket, 35) }}
                                 </div>
@@ -114,7 +135,7 @@
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
                                     <button class="btn btn-outline-primary btn-action" onclick="openEditModal({{ json_encode($a) }})"><i class="bi bi-pencil-square"></i></button>
-                                    <a href="/admin/hapus/{{ $a->id_pelaporan }}" class="btn btn-outline-danger btn-action" onclick="return confirm('Hapus?')"><i class="bi bi-trash3"></i></a>
+                                    <a href="/admin/hapus/{{ $a->id_pelaporan }}" class="btn btn-outline-danger btn-action" onclick="return confirm('Hapus aspirasi ini?')"><i class="bi bi-trash3"></i></a>
                                 </div>
                             </td>
                         </tr>
@@ -135,6 +156,7 @@
                 <div class="modal-body">
                     <small class="text-primary fw-bold text-uppercase">Pengirim & Lokasi:</small>
                     <p class="text-white mb-3"><span id="detNama"></span> — <span id="detLokasi" class="text-info"></span></p>
+                    <hr class="border-secondary opacity-25">
                     <small class="text-primary fw-bold text-uppercase">Isi Pesan:</small>
                     <div id="detPesan" class="p-3 bg-black rounded border border-secondary text-light mt-1" style="white-space: pre-wrap;"></div>
                 </div>
@@ -201,10 +223,14 @@
         });
 
         function btnShowDetail(el) {
+            // Mengambil data dari atribut div
             $('#detNama').text($(el).data('nama'));
             $('#detLokasi').text($(el).data('lokasi'));
             $('#detPesan').text($(el).data('pesan'));
-            new bootstrap.Modal(document.getElementById('detailModal')).show();
+            
+            // Inisialisasi dan tampilkan modal
+            var myModal = new bootstrap.Modal(document.getElementById('detailModal'));
+            myModal.show();
         }
 
         function openEditModal(data) {
@@ -213,7 +239,9 @@
             $('#edit_lokasi').val(data.lokasi);
             $('#edit_status').val(data.status);
             $('#edit_pesan').val(data.ket);
-            new bootstrap.Modal(document.getElementById('editModal')).show();
+            
+            var editMdl = new bootstrap.Modal(document.getElementById('editModal'));
+            editMdl.show();
         }
     </script>
 </body>
